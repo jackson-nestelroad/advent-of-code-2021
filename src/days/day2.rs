@@ -3,9 +3,10 @@ use std::str::FromStr;
 
 pub struct Day2 {}
 
-struct Command {
-    pub direction: String,
-    pub steps: i64,
+enum Command {
+    Forward(i64),
+    Up(i64),
+    Down(i64),
 }
 
 impl FromStr for Command {
@@ -20,9 +21,11 @@ impl FromStr for Command {
             Err(err) => return Err(Error::new(err.to_string())),
             Ok(num) => num,
         };
-        Ok(Command {
-            direction: first.to_owned(),
-            steps,
+        Ok(match first {
+            "forward" => Command::Forward(steps),
+            "up" => Command::Up(steps),
+            "down" => Command::Down(steps),
+            _ => return Err(Error::new("unknown command")),
         })
     }
 }
@@ -55,16 +58,16 @@ impl Solver for Day2 {
             depth: 0,
         };
         for command in commands {
-            match command.direction.as_ref() {
-                "forward" => position.horizontal += command.steps,
-                "down" => position.depth += command.steps,
-                "up" => position.depth -= command.steps,
-                _ => return Err(Error::new("invalid direction")),
+            match command {
+                Command::Forward(steps) => position.horizontal += steps,
+                Command::Down(steps) => position.depth += steps,
+                Command::Up(steps) => position.depth -= steps,
             }
         }
         let result: i64 = position.horizontal * position.depth;
         Ok(result)
     }
+
     fn solve_b(input: &str) -> Result<iAoC, Error> {
         let commands = Day2::read_commands(input)?;
         let mut position = AimPosition {
@@ -73,14 +76,13 @@ impl Solver for Day2 {
             aim: 0,
         };
         for command in commands {
-            match command.direction.as_ref() {
-                "forward" => {
-                    position.horizontal += command.steps;
-                    position.depth += position.aim * command.steps
+            match command {
+                Command::Forward(steps) => {
+                    position.horizontal += steps;
+                    position.depth += position.aim * steps
                 }
-                "down" => position.aim += command.steps,
-                "up" => position.aim -= command.steps,
-                _ => return Err(Error::new("invalid direction")),
+                Command::Down(steps) => position.aim += steps,
+                Command::Up(steps) => position.aim -= steps,
             }
         }
         let result: i64 = position.horizontal * position.depth;
