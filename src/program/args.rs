@@ -31,13 +31,15 @@ impl Display for SolutionPart {
 pub struct ProgramArgs {
     day: u8,
     part: SolutionPart,
+    filename: Option<String>,
 }
 
 impl ProgramArgs {
-    pub fn new(day: u8, part: SolutionPart) -> Self {
+    pub fn new(day: u8, part: SolutionPart, filename: Option<String>) -> Self {
         ProgramArgs {
-            day: day,
-            part: part,
+            day,
+            part,
+            filename,
         }
     }
 
@@ -49,8 +51,16 @@ impl ProgramArgs {
         return self.part;
     }
 
+    pub fn filename(&self) -> &Option<String> {
+        return &self.filename;
+    }
+
+    fn get_next_string_optional(args: &mut Args) -> Option<String> {
+        args.next()
+    }
+
     fn get_next_string(args: &mut Args, name: &str) -> Result<String, Error> {
-        match args.next() {
+        match Self::get_next_string_optional(args) {
             None => Err(Error::new(format!("missing {}", name))),
             Some(parsed) => Ok(parsed),
         }
@@ -71,7 +81,9 @@ impl ProgramArgs {
 
         let part = SolutionPart::from_string(&Self::get_next_string(&mut args, "part")?)?;
 
-        Ok(ProgramArgs::new(day, part))
+        let filename = Self::get_next_string_optional(&mut args);
+
+        Ok(ProgramArgs::new(day, part, filename))
     }
 
     pub fn usage(program_name: &str) -> String {

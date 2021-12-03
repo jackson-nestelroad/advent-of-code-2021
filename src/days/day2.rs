@@ -1,7 +1,5 @@
-use crate::common::{iAoC, Error, Solver};
+use crate::common::{iAoC, Error};
 use std::str::FromStr;
-
-pub struct Day2 {}
 
 enum Command {
     Forward(i64),
@@ -41,51 +39,47 @@ struct AimPosition {
     pub aim: i64,
 }
 
-impl Day2 {
-    fn read_commands(input: &str) -> Result<Vec<Command>, Error> {
-        match input.lines().map(|line| Command::from_str(line)).collect() {
-            Err(err) => Err(Error::new(err.to_string())),
-            Ok(coll) => Ok(coll),
-        }
+fn read_commands(input: &str) -> Result<Vec<Command>, Error> {
+    match input.lines().map(|line| Command::from_str(line)).collect() {
+        Err(err) => Err(Error::new(err.to_string())),
+        Ok(coll) => Ok(coll),
     }
 }
 
-impl Solver for Day2 {
-    fn solve_a(input: &str) -> Result<iAoC, Error> {
-        let commands = Day2::read_commands(input)?;
-        let mut position = Position {
-            horizontal: 0,
-            depth: 0,
-        };
-        for command in commands {
-            match command {
-                Command::Forward(steps) => position.horizontal += steps,
-                Command::Down(steps) => position.depth += steps,
-                Command::Up(steps) => position.depth -= steps,
-            }
+pub fn solve_a(input: &str) -> Result<iAoC, Error> {
+    let commands = read_commands(input)?;
+    let mut position = Position {
+        horizontal: 0,
+        depth: 0,
+    };
+    for command in commands {
+        match command {
+            Command::Forward(steps) => position.horizontal += steps,
+            Command::Down(steps) => position.depth += steps,
+            Command::Up(steps) => position.depth -= steps,
         }
-        let result: i64 = position.horizontal * position.depth;
-        Ok(result)
     }
+    let result = position.horizontal * position.depth;
+    Ok(result as u64)
+}
 
-    fn solve_b(input: &str) -> Result<iAoC, Error> {
-        let commands = Day2::read_commands(input)?;
-        let mut position = AimPosition {
-            horizontal: 0,
-            depth: 0,
-            aim: 0,
-        };
-        for command in commands {
-            match command {
-                Command::Forward(steps) => {
-                    position.horizontal += steps;
-                    position.depth += position.aim * steps
-                }
-                Command::Down(steps) => position.aim += steps,
-                Command::Up(steps) => position.aim -= steps,
+pub fn solve_b(input: &str) -> Result<iAoC, Error> {
+    let commands = read_commands(input)?;
+    let mut position = AimPosition {
+        horizontal: 0,
+        depth: 0,
+        aim: 0,
+    };
+    for command in commands {
+        match command {
+            Command::Forward(steps) => {
+                position.horizontal += steps;
+                position.depth += position.aim * steps
             }
+            Command::Down(steps) => position.aim += steps,
+            Command::Up(steps) => position.aim -= steps,
         }
-        let result: i64 = position.horizontal * position.depth;
-        Ok(result)
     }
+    let result = position.horizontal * position.depth;
+    Ok(result as iAoC)
 }

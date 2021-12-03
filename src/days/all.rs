@@ -1,12 +1,13 @@
 use super::*;
-use crate::common::{iAoC, Error, Solver, SolverFn};
+use crate::common::{iAoC, Error, SolverFn};
 use crate::program::{ProgramArgs, SolutionPart};
 use std::fs;
 use std::time::{Duration, Instant};
 
-const SOLVERS: [[SolverFn; 2]; 2] = [
-    [Day1::solve_a, Day1::solve_b],
-    [Day2::solve_a, Day2::solve_b],
+const SOLVERS: [[SolverFn; 2]; 3] = [
+    [day1::solve_a, day1::solve_b],
+    [day2::solve_a, day2::solve_b],
+    [day3::solve_a, day3::solve_b],
 ];
 
 fn get_solver(args: &ProgramArgs) -> Result<SolverFn, Error> {
@@ -42,8 +43,11 @@ impl Solution {
 
 pub fn solve(args: &ProgramArgs) -> Result<Solution, Error> {
     let solver = get_solver(args)?;
-    let file_name = format!("input/{}.txt", args.day());
-    let input = match fs::read_to_string(file_name) {
+    let filename = match args.filename() {
+        None => format!("input/{}.txt", args.day()),
+        Some(filename) => format!("input/{}", filename),
+    };
+    let input = match fs::read_to_string(filename) {
         Err(err) => return Err(Error::new(err.to_string())),
         Ok(input) => input,
     };
