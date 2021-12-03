@@ -27,8 +27,8 @@ fn main() {
     };
     println!("Day {}, Part {}", args.day(), args.part());
     println!(
-        "Solution: {} ({} ms)",
+        "Solution: {} ({} us)",
         solution.solution(),
-        solution.time().as_millis()
+        solution.time().as_micros()
     );
 }
