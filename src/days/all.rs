@@ -4,10 +4,11 @@ use crate::program::{ProgramArgs, SolutionPart};
 use std::fs;
 use std::time::{Duration, Instant};
 
-const SOLVERS: [[SolverFn; 2]; 3] = [
+const SOLVERS: [[SolverFn; 2]; 4] = [
     [day1::solve_a, day1::solve_b],
     [day2::solve_a, day2::solve_b],
     [day3::solve_a, day3::solve_b],
+    [day4::solve_a, day4::solve_b],
 ];
 
 fn get_solver(args: &ProgramArgs) -> Result<SolverFn, Error> {
