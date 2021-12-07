@@ -1,4 +1,4 @@
-use crate::common::{iAoC, Error};
+use crate::common::{iAoc, AocError, AocResult, IntoAocResult};
 use std::collections::HashMap;
 use std::num::ParseIntError;
 use std::str::FromStr;
@@ -10,19 +10,17 @@ struct BinaryDiagnosticData {
 }
 
 impl FromStr for BinaryDiagnosticData {
-    type Err = Error;
+    type Err = AocError;
 
     fn from_str(input: &str) -> Result<Self, Self::Err> {
-        let parsed: Vec<(usize, u32)> = match input
+        let parsed: Vec<(usize, u32)> = input
             .lines()
             .map::<Result<(usize, u32), ParseIntError>, _>(|line| {
                 Ok((line.len(), u32::from_str_radix(line, 2)?))
             })
-            .collect()
-        {
-            Err(err) => return Err(Error::new(err.to_string())),
-            Ok(coll) => coll,
-        };
+            .collect::<Result<_, _>>()
+            .into_aoc_result()?;
+
         let bits_per_line = parsed
             .iter()
             .fold(usize::MIN, |max, (b_len, _)| max.max(*b_len));
@@ -69,7 +67,7 @@ impl BinaryDiagnosticData {
     }
 }
 
-pub fn solve_a(input: &str) -> Result<iAoC, Error> {
+pub fn solve_a(input: &str) -> AocResult<iAoc> {
     let data = BinaryDiagnosticData::from_str(input)?;
     let bit_count = data.count_bits();
     let majority = (data.len() as f64 / 2.0).ceil() as usize;
@@ -78,11 +76,11 @@ pub fn solve_a(input: &str) -> Result<iAoC, Error> {
         .filter(|(_, count)| count >= &majority)
         .fold(0u32, |result, (i, _)| result | (1 << i));
     let epsilon = !gamma & ((1 << data.bits_per_line) - 1);
-    let result = gamma as iAoC * epsilon as iAoC;
+    let result = gamma as iAoc * epsilon as iAoc;
     Ok(result)
 }
 
-pub fn solve_b(input: &str) -> Result<iAoC, Error> {
+pub fn solve_b(input: &str) -> AocResult<iAoc> {
     let data = BinaryDiagnosticData::from_str(input)?;
 
     let bits = data.bits_per_line;
@@ -111,10 +109,10 @@ pub fn solve_b(input: &str) -> Result<iAoC, Error> {
     }
 
     if o2_candidates.len() != 1 || co2_candidates.len() != 1 {
-        return Err(Error::new("value reduction did not complete"));
+        return Err(AocError::new("value reduction did not complete"));
     }
     let o2_generator_rating = o2_candidates.entries[0];
     let co2_scrubber_rating = co2_candidates.entries[0];
-    let result = o2_generator_rating as iAoC * co2_scrubber_rating as iAoC;
+    let result = o2_generator_rating as iAoc * co2_scrubber_rating as iAoc;
     Ok(result)
 }

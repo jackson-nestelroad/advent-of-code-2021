@@ -1,4 +1,4 @@
-use crate::common::Error;
+use crate::common::{AocError, AocResult};
 use std::env::Args;
 use std::fmt::{Display, Formatter, Result as DisplayResult};
 
@@ -9,11 +9,11 @@ pub enum SolutionPart {
 }
 
 impl SolutionPart {
-    pub fn from_string(string: &str) -> Result<Self, Error> {
+    pub fn from_string(string: &str) -> AocResult<Self> {
         match string {
             "A" => Ok(Self::A),
             "B" => Ok(Self::B),
-            _ => Err(Error::new("part must be either A or B")),
+            _ => Err(AocError::new("part must be either A or B")),
         }
     }
 }
@@ -59,24 +59,24 @@ impl ProgramArgs {
         args.next()
     }
 
-    fn get_next_string(args: &mut Args, name: &str) -> Result<String, Error> {
+    fn get_next_string(args: &mut Args, name: &str) -> AocResult<String> {
         match Self::get_next_string_optional(args) {
-            None => Err(Error::new(format!("missing {}", name))),
+            None => Err(AocError::new(format!("missing {}", name))),
             Some(parsed) => Ok(parsed),
         }
     }
 
-    fn get_next_integer(args: &mut Args, name: &str) -> Result<u8, Error> {
+    fn get_next_integer(args: &mut Args, name: &str) -> AocResult<u8> {
         match Self::get_next_string(args, name)?.parse::<u8>() {
-            Err(_) => Err(Error::new(format!("{} must be an integer", name))),
+            Err(_) => Err(AocError::new(format!("{} must be an integer", name))),
             Ok(parsed) => Ok(parsed),
         }
     }
 
-    pub fn parse_from_args(mut args: Args) -> Result<Self, Error> {
+    pub fn parse_from_args(mut args: Args) -> AocResult<Self> {
         let day = Self::get_next_integer(&mut args, "day")?;
         if day <= 0 || day > 31 {
-            return Err(Error::new("day must be between 1 and 31"));
+            return Err(AocError::new("day must be between 1 and 31"));
         }
 
         let part = SolutionPart::from_string(&Self::get_next_string(&mut args, "part")?)?;

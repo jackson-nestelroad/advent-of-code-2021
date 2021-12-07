@@ -1,4 +1,4 @@
-use crate::common::{iAoC, Error};
+use crate::common::{iAoc, AocError, AocResult, IntoAocResult};
 use std::str::FromStr;
 
 enum Command {
@@ -8,22 +8,18 @@ enum Command {
 }
 
 impl FromStr for Command {
-    type Err = Error;
+    type Err = AocError;
 
     fn from_str(command: &str) -> Result<Self, Self::Err> {
-        let (first, second) = match command.split_once(" ") {
-            None => return Err(Error::new("no space detected")),
-            Some(split) => split,
-        };
-        let steps = match second.parse::<i64>() {
-            Err(err) => return Err(Error::new(err.to_string())),
-            Ok(num) => num,
-        };
+        let (first, second) = command
+            .split_once(" ")
+            .into_aoc_result_msg("no space detected")?;
+        let steps = second.parse::<i64>().into_aoc_result()?;
         Ok(match first {
             "forward" => Command::Forward(steps),
             "up" => Command::Up(steps),
             "down" => Command::Down(steps),
-            _ => return Err(Error::new("unknown command")),
+            _ => return Err(AocError::new("unknown command")),
         })
     }
 }
@@ -39,14 +35,15 @@ struct AimPosition {
     pub aim: i64,
 }
 
-fn read_commands(input: &str) -> Result<Vec<Command>, Error> {
-    match input.lines().map(|line| Command::from_str(line)).collect() {
-        Err(err) => Err(Error::new(err.to_string())),
-        Ok(coll) => Ok(coll),
-    }
+fn read_commands(input: &str) -> AocResult<Vec<Command>> {
+    input
+        .lines()
+        .map(|line| Command::from_str(line))
+        .collect::<Result<_, _>>()
+        .into_aoc_result()
 }
 
-pub fn solve_a(input: &str) -> Result<iAoC, Error> {
+pub fn solve_a(input: &str) -> AocResult<iAoc> {
     let commands = read_commands(input)?;
     let mut position = Position {
         horizontal: 0,
@@ -63,7 +60,7 @@ pub fn solve_a(input: &str) -> Result<iAoC, Error> {
     Ok(result as u64)
 }
 
-pub fn solve_b(input: &str) -> Result<iAoC, Error> {
+pub fn solve_b(input: &str) -> AocResult<iAoc> {
     let commands = read_commands(input)?;
     let mut position = AimPosition {
         horizontal: 0,
@@ -81,5 +78,5 @@ pub fn solve_b(input: &str) -> Result<iAoC, Error> {
         }
     }
     let result = position.horizontal * position.depth;
-    Ok(result as iAoC)
+    Ok(result as iAoc)
 }

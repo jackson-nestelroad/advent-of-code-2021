@@ -1,19 +1,18 @@
 use super::*;
-use crate::common::{iAoC, Error, SolverFn};
+use crate::common::{iAoc, AocError, AocResult, IntoAocResult, SolverFn};
 use crate::program::{ProgramArgs, SolutionPart};
 use std::fs;
 use std::time::{Duration, Instant};
 
-const SOLVERS: [[SolverFn; 2]; 4] = [
     [day1::solve_a, day1::solve_b],
     [day2::solve_a, day2::solve_b],
     [day3::solve_a, day3::solve_b],
     [day4::solve_a, day4::solve_b],
 ];
 
-fn get_solver(args: &ProgramArgs) -> Result<SolverFn, Error> {
+fn get_solver(args: &ProgramArgs) -> AocResult<SolverFn> {
     if args.day() as usize > SOLVERS.len() {
-        return Err(Error::new("day not implemented"));
+        return Err(AocError::new("day not implemented"));
     }
 
     let part_index: usize = match args.part() {
@@ -24,16 +23,16 @@ fn get_solver(args: &ProgramArgs) -> Result<SolverFn, Error> {
 }
 
 pub struct Solution {
-    solution: iAoC,
+    solution: iAoc,
     time: Duration,
 }
 
 impl Solution {
-    pub fn new(solution: iAoC, time: Duration) -> Self {
+    pub fn new(solution: iAoc, time: Duration) -> Self {
         Solution { solution, time }
     }
 
-    pub fn solution(&self) -> iAoC {
+    pub fn solution(&self) -> iAoc {
         self.solution
     }
 
@@ -42,16 +41,13 @@ impl Solution {
     }
 }
 
-pub fn solve(args: &ProgramArgs) -> Result<Solution, Error> {
+pub fn solve(args: &ProgramArgs) -> AocResult<Solution> {
     let solver = get_solver(args)?;
     let filename = match args.filename() {
         None => format!("input/{}.txt", args.day()),
         Some(filename) => format!("input/{}", filename),
     };
-    let input = match fs::read_to_string(filename) {
-        Err(err) => return Err(Error::new(err.to_string())),
-        Ok(input) => input,
-    };
+    let input = fs::read_to_string(filename).into_aoc_result()?;
     let now = Instant::now();
     let solution = solver(&input)?;
     let then = now.elapsed();

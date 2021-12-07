@@ -1,4 +1,4 @@
-use crate::common::{iAoC, Error};
+use crate::common::{iAoc, AocError, AocResult, IntoAocResult};
 use num::Integer;
 use std::collections::HashMap;
 use std::num::ParseIntError;
@@ -56,7 +56,7 @@ impl BingoBoard {
             .sum()
     }
 
-    fn try_from_iter<'s, I>(input: I) -> Result<Self, Error>
+    fn try_from_iter<'s, I>(input: I) -> AocResult<Self>
     where
         I: Iterator<Item = &'s str>,
     {
@@ -67,18 +67,9 @@ impl BingoBoard {
                 Ok((row, line.split_whitespace().map(|n| n.parse::<u32>())))
             });
         for row in row_iter {
-            match row {
-                Err(err) => return Err(Error::new(err.to_string())),
-                Ok((row, num_iter)) => {
-                    for (col, num) in num_iter.enumerate() {
-                        match num {
-                            Err(err) => return Err(Error::new(err.to_string())),
-                            Ok(num) => {
-                                num_to_index.insert(num, (row, col));
-                            }
-                        }
-                    }
-                }
+            let (row, num_iter) = row.into_aoc_result()?;
+            for (col, num) in num_iter.enumerate() {
+                num_to_index.insert(num.into_aoc_result()?, (row, col));
             }
         }
         Ok(BingoBoard {
@@ -88,15 +79,15 @@ impl BingoBoard {
     }
 }
 
-fn parse_input(input: &str) -> Result<(Vec<u32>, Vec<BingoBoard>), Error> {
+fn parse_input(input: &str) -> AocResult<(Vec<u32>, Vec<BingoBoard>)> {
     let mut lines = input.lines();
-    let numbers: Vec<u32> = match lines.next() {
-        None => return Err(Error::new("numbers list not found")),
-        Some(line) => match line.split(',').map(|n| n.parse::<u32>()).collect() {
-            Err(err) => return Err(Error::new(err.to_string())),
-            Ok(coll) => coll,
-        },
-    };
+    let numbers: Vec<u32> = lines
+        .next()
+        .into_aoc_result_msg("numbers list not found")?
+        .split(',')
+        .map(|n| n.parse::<u32>())
+        .collect::<Result<_, _>>()
+        .into_aoc_result()?;
     let mut boards: Vec<BingoBoard> = Vec::new();
     while lines.next().is_some() {
         boards.push(BingoBoard::try_from_iter(lines.by_ref().take(BOARD_SIZE))?);
@@ -104,19 +95,19 @@ fn parse_input(input: &str) -> Result<(Vec<u32>, Vec<BingoBoard>), Error> {
     Ok((numbers, boards))
 }
 
-pub fn solve_a(input: &str) -> Result<iAoC, Error> {
+pub fn solve_a(input: &str) -> AocResult<iAoc> {
     let (numbers, mut boards) = parse_input(input)?;
     for num in numbers {
         for board in &mut boards {
             if board.mark(num) {
                 if board.is_winner() {
-                    let score = board.sum_unmarked() as iAoC * num as iAoC;
+                    let score = board.sum_unmarked() as iAoc * num as iAoc;
                     return Ok(score);
                 }
             }
         }
     }
-    Err(Error::new("no board won"))
+    Err(AocError::new("no board won"))
 }
 
 fn check_bit(bits: &Vec<u64>, i: usize) -> bool {
@@ -127,7 +118,7 @@ fn set_bit(bits: &mut Vec<u64>, i: usize) {
     bits[i >> 6] |= 1 << (i & 0x3F);
 }
 
-pub fn solve_b(input: &str) -> Result<iAoC, Error> {
+pub fn solve_b(input: &str) -> AocResult<iAoc> {
     let (numbers, mut boards) = parse_input(input)?;
     let mut winning_boards: Vec<u64> = vec![0; boards.len().div_ceil(&64)];
     let mut winning_board_count = 0;
@@ -138,7 +129,7 @@ pub fn solve_b(input: &str) -> Result<iAoC, Error> {
             if !check_bit(&winning_boards, i) && board.mark(num) {
                 if board.is_winner() {
                     if winning_board_count == all_but_one {
-                        let score = board.sum_unmarked() as iAoC * num as iAoC;
+                        let score = board.sum_unmarked() as iAoc * num as iAoc;
                         return Ok(score);
                     } else {
                         winning_board_count += 1;
@@ -148,5 +139,5 @@ pub fn solve_b(input: &str) -> Result<iAoC, Error> {
             }
         }
     }
-    Err(Error::new("all boards never won"))
+    Err(AocError::new("all boards never won"))
 }

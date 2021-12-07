@@ -1,13 +1,14 @@
-use crate::common::{iAoC, Error};
+use crate::common::{iAoc, AocResult, IntoAocResult};
 
-fn read_depths(input: &str) -> Result<Vec<i32>, Error> {
-    match input.lines().map(|depth| depth.parse::<i32>()).collect() {
-        Err(err) => Err(Error::new(err.to_string())),
-        Ok(coll) => Ok(coll),
-    }
+fn read_depths(input: &str) -> AocResult<Vec<i32>> {
+    input
+        .lines()
+        .map(|depth| depth.parse::<i32>())
+        .collect::<Result<Vec<i32>, _>>()
+        .into_aoc_result()
 }
 
-pub fn solve_a(input: &str) -> Result<iAoC, Error> {
+pub fn solve_a(input: &str) -> AocResult<iAoc> {
     let depths: Vec<i32> = read_depths(input)?;
     let result = depths
         .iter()
@@ -19,7 +20,7 @@ pub fn solve_a(input: &str) -> Result<iAoC, Error> {
     Ok(result)
 }
 
-pub fn solve_b(input: &str) -> Result<iAoC, Error> {
+pub fn solve_b(input: &str) -> AocResult<iAoc> {
     let depths: Vec<i32> = read_depths(input)?;
     let windows: Vec<i32> = depths
         .windows(3)
