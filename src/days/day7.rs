@@ -110,7 +110,7 @@ pub fn solve_b(input: &str) -> AocResult<iAoc> {
             adding 1/2 = ceil(integer avg)
 
 
-        The below solution uses this result attempts two integer values based on this range.
+        The below solution attempts two integer values based on this range.
 
     */
 
