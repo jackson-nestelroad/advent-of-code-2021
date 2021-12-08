@@ -34,7 +34,7 @@ fn create_grid(segments: Vec<LineSegment>) -> HashMap<Point<i32>, i32> {
     let mut grid = HashMap::new();
     for seg in segments {
         // Do not need to worry about slope due to guarantee of the problem,
-        // which states all linesare horizontal, vertical, or 45-degree diagonal.
+        // which states all lines are horizontal, vertical, or 45-degree diagonal.
         let dy = seg.end.y.cmp(&seg.begin.y);
         let dx = seg.end.x.cmp(&seg.begin.x);
 
