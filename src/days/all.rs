@@ -5,13 +5,13 @@ use std::fs;
 use std::time::{Duration, Instant};
 
 const SOLVERS: [[SolverFn; 2]; 7] = [
-    [day1::solve_a, day1::solve_b],
-    [day2::solve_a, day2::solve_b],
-    [day3::solve_a, day3::solve_b],
-    [day4::solve_a, day4::solve_b],
-    [day5::solve_a, day5::solve_b],
-    [day6::solve_a, day6::solve_b],
-    [day7::solve_a, day7::solve_b],
+    [day01::solve_a, day01::solve_b],
+    [day02::solve_a, day02::solve_b],
+    [day03::solve_a, day03::solve_b],
+    [day04::solve_a, day04::solve_b],
+    [day05::solve_a, day05::solve_b],
+    [day06::solve_a, day06::solve_b],
+    [day07::solve_a, day07::solve_b],
 ];
 
 fn get_solver(args: &ProgramArgs) -> AocResult<SolverFn> {
