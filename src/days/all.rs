@@ -4,13 +4,14 @@ use crate::program::{ProgramArgs, SolutionPart};
 use std::fs;
 use std::time::{Duration, Instant};
 
-const SOLVERS: [[SolverFn; 2]; 6] = [
+const SOLVERS: [[SolverFn; 2]; 7] = [
     [day1::solve_a, day1::solve_b],
     [day2::solve_a, day2::solve_b],
     [day3::solve_a, day3::solve_b],
     [day4::solve_a, day4::solve_b],
     [day5::solve_a, day5::solve_b],
     [day6::solve_a, day6::solve_b],
+    [day7::solve_a, day7::solve_b],
 ];
 
 fn get_solver(args: &ProgramArgs) -> AocResult<SolverFn> {
