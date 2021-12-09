@@ -83,30 +83,33 @@ pub fn solve_b(input: &str) -> AocResult<iAoc> {
     let height_map = HeightMap::from_str(input)?;
 
     let mut basin_sizes: Vec<usize> = Vec::new();
+    let mut visited: HashSet<(usize, usize)> = HashSet::new();
     for row in 0..height_map.height {
         for col in 0..height_map.width {
             let point = (row, col);
-            if height_map.is_low_point(point) {
-                // Found a low point, now build the basin by exploring around it.
-
-                // Points in the basin.
-                let mut basin = HashSet::new();
+            if height_map.get(point) != 9 && !visited.contains(&point) {
+                // Current basin size.
+                let mut basin_size = 0;
                 // Points to explore.
                 let mut explore_queue = VecDeque::new();
                 explore_queue.push_back(point);
 
                 while !explore_queue.is_empty() {
                     let point = explore_queue.pop_front().unwrap();
-                    basin.insert(point);
+                    if visited.contains(&point) {
+                        continue;
+                    }
+                    visited.insert(point);
+                    basin_size += 1;
                     for neighbor in height_map.get_neighbors(point) {
                         if let Some(neighbor) = neighbor {
-                            if !basin.contains(&neighbor) && height_map.get(neighbor) != 9 {
+                            if !visited.contains(&neighbor) && height_map.get(neighbor) != 9 {
                                 explore_queue.push_back(neighbor);
                             }
                         }
                     }
                 }
-                basin_sizes.push(basin.len());
+                basin_sizes.push(basin_size);
             }
         }
     }
