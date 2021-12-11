@@ -1,13 +1,24 @@
-use crate::common::point::Point;
 use crate::common::{iAoc, AocError, AocResult, IntoAocResult};
 use num::range_step_inclusive;
 use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::str::FromStr;
 
+#[derive(PartialEq, Eq, Hash)]
+pub struct Point {
+    pub x: i32,
+    pub y: i32,
+}
+
+impl Point {
+    pub fn new(x: i32, y: i32) -> Self {
+        Point { x, y }
+    }
+}
+
 struct LineSegment {
-    pub begin: Point<i32>,
-    pub end: Point<i32>,
+    pub begin: Point,
+    pub end: Point,
 }
 
 impl FromStr for LineSegment {
@@ -30,7 +41,7 @@ impl FromStr for LineSegment {
     }
 }
 
-fn create_grid(segments: Vec<LineSegment>) -> HashMap<Point<i32>, i32> {
+fn create_grid(segments: Vec<LineSegment>) -> HashMap<Point, i32> {
     let mut grid = HashMap::new();
     for seg in segments {
         // Do not need to worry about slope due to guarantee of the problem,
