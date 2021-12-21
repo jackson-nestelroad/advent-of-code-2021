@@ -128,7 +128,7 @@ pub fn solve_a(input: &str) -> AocResult<iAoc> {
 /// Four bits can be used to represent the position of a player because the
 /// board only has 10 possible spaces.
 ///
-/// A single bit can be used to represent the who's turn it is.
+/// A single bit can be used to represent whose turn it is.
 ///
 /// The points are stored first because they represent how far along the game
 /// is, helping optimize iteration through all game states and checking game
