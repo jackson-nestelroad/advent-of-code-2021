@@ -1,5 +1,6 @@
 use crate::common::{iAoc, AocResult, IntoAocResult};
 use itertools::Itertools;
+use std::collections::HashMap;
 
 #[derive(Clone, Copy)]
 struct PlayerState {
@@ -121,9 +122,7 @@ pub fn solve_a(input: &str) -> AocResult<iAoc> {
 ///     E = Next turn
 ///
 /// Five bits can be used to represent the number of points because the game
-/// ends when one player reaches at least 21 points. The maximum number of
-/// points that can be earned before the game is detected as over is 23,
-/// which is earned by a player with 20 points who roles a 3.
+/// ends when one player reaches 21 points.
 ///
 /// Four bits can be used to represent the position of a player because the
 /// board only has 10 possible spaces.
@@ -144,7 +143,6 @@ enum Player {
 }
 
 impl GameState {
-    const GAME_STATE: u32 = 0b11111_11111_1111_1111_1;
     const P1_POINTS: u32 = 0b11111_00000_0000_0000_0;
     const P2_POINTS: u32 = 0b00000_11111_0000_0000_0;
     const P1_POSITION: u32 = 0b00000_00000_1111_0000_0;
@@ -160,6 +158,12 @@ impl GameState {
     const WINNING_SCORE: u32 = 21;
     const P1_WINS: u32 = Self::WINNING_SCORE << Self::P1_POINTS_SHIFT;
     const P2_WINS: u32 = Self::WINNING_SCORE << Self::P2_POINTS_SHIFT;
+
+    const MAX_GAME_STATE: u32 = Self::P1_WINS
+        | ((Self::WINNING_SCORE - 1) << Self::P2_POINTS_SHIFT)
+        | Self::P1_POSITION
+        | Self::P2_POSITION
+        | Self::NEXT_PLAYER;
 
     pub fn next_player(&self) -> Player {
         if self.0 & Self::NEXT_PLAYER == 0 {
@@ -213,7 +217,7 @@ impl GameState {
     }
 
     pub fn increase_points(&mut self, player: Player, add: u32) -> u32 {
-        let new_points = self.get_points(player) + add;
+        let new_points = (self.get_points(player) + add).min(Self::WINNING_SCORE);
         match player {
             Player::Player1 => {
                 self.0 &= !Self::P1_POINTS;
@@ -241,7 +245,7 @@ impl DiracDie {
 
     pub fn new(p1_pos: u8, p2_pos: u8) -> Self {
         let mut result = DiracDie {
-            games: vec![0; GameState::GAME_STATE as usize],
+            games: vec![0; GameState::MAX_GAME_STATE as usize],
         };
 
         // Create initial game.
@@ -260,6 +264,15 @@ impl DiracDie {
     }
 
     pub fn play(&mut self) {
+        // A lot of the rolls produce the same sum, so count how many of each
+        // possible roll can be achieved.
+        let mut possible_roll_sums = HashMap::new();
+        for roll in self.possible_rolls() {
+            *possible_roll_sums
+                .entry(roll.into_iter().sum::<u32>())
+                .or_insert(0) += 1;
+        }
+
         let mut done = false;
         while !done {
             done = true;
@@ -275,16 +288,15 @@ impl DiracDie {
 
                     // Split off on all possible dice rolls.
                     done = false;
-                    for roll in self.possible_rolls() {
-                        let roll: u32 = roll.into_iter().sum();
+                    for (roll, sum_count) in &possible_roll_sums {
                         let mut state = state.clone();
 
                         let player = state.next_player();
-                        let new_pos = state.move_player(player, roll);
+                        let new_pos = state.move_player(player, *roll);
                         state.increase_points(player, new_pos + 1);
                         state.flip_turn();
 
-                        self.games[state.0 as usize] += universe_count;
+                        self.games[state.0 as usize] += sum_count * universe_count;
                     }
 
                     self.games[game] = 0;
