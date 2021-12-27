@@ -238,7 +238,7 @@ impl<const R: usize> AmphipodState<R> {
             )
     }
 
-    /// Generates all valid state changes from a room to a hallway.
+    /// Generates all valid state changes for one amphipod in a wrong room to the hallway.
     fn room_to_hallway<'a>(&'a self) -> impl Iterator<Item = (Self, usize)> + 'a {
         self.rooms
             .iter()
