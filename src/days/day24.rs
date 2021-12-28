@@ -254,7 +254,7 @@ fn run_monad(instructions: &Vec<Instruction>, input: &[u8; 14]) -> bool {
     this value is not always popped. This is the first parameter: `pop_stack`.
     The other two variables, `stack_pop_add` and `stack_push_add`, are two offset
     integers for comparing the current digit to the value on the top of the stack
-    and
+    and pushing hte current_digit to the top of the stack.
 
     Thus, the MONAD program can be summarized as follows:
         1. Get the next digit as input.
